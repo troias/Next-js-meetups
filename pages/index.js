@@ -1,14 +1,21 @@
 import { useEffect, useState } from 'react';
+import Head from 'next/head'
 import EventList from '../components/events/event-list';
-import {getAllEvents} from '../helpers/api-util'
-import {getFeaturedEvents} from '../helpers/api-util'
+import { getAllEvents } from '../helpers/api-util'
+import { getFeaturedEvents } from '../helpers/api-util'
 
 function HomePage(props) {
- const {featuredEvents} = props;
+  const { featuredEvents } = props;
   return (
-    <div>
-      <EventList items={featuredEvents} />
-    </div>
+    <>
+      <Head>
+        <title>Next JS Events</title>
+        <meta name="description" content="Find A lot of NextJS events" />
+      </Head>
+      <div>
+        <EventList items={featuredEvents} />
+      </div>
+    </>
   );
 }
 
