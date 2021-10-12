@@ -1,21 +1,19 @@
 import { Fragment } from 'react';
+import { getEventById, getAllEvents } from '../../helpers/api-util'
 import EventSummary from '../../components/event-detail/event-summary';
 import EventLogistics from '../../components/event-detail/event-logistics';
 import EventContent from '../../components/event-detail/event-content';
 import ErrorAlert from '../../components/ui/error-alert';
 
 function EventDetailPage(props) {
-  const {event} = props;
-  console.log("EventDetailPageProps", props)
-   // const event = getEventById(eventId);
- 
-  
+  const { event } = props;
 
-  if (!props.event) {
+
+  if (!event) {
     return (
-      <ErrorAlert>
-        <p>No event found!</p>
-      </ErrorAlert>
+      <div className="center">
+        <p>Loading</p>
+      </div>
     );
   }
 
@@ -34,22 +32,23 @@ function EventDetailPage(props) {
     </Fragment>
   );
 }
-export const getStaticPaths = async  (ctx) => {
+export const getStaticPaths = async () => {
+
+  const data = await getAllEvents()
+  const paths = data.map(x => ({
+    params: { eventId: x.id }
+  }))
+
   return {
-    paths: [
-      {params: {eventId: "e1"}},
-      {params: {eventId: "e2"}}
-    ],  fallback: false
+    paths: paths, fallback: "blocking"
   }
 }
 
 export const getStaticProps = async (ctx) => {
- 
+
   const eventId = ctx.params.eventId
-  const req = await fetch(`https://next-js-example-8e3b6-default-rtdb.firebaseio.com/events.json?orderBy="$key"&equalTo="${eventId}"`)
-  const res = await req.json()
-  const event = res[`${eventId}`]
-  
+  const event = await getEventById(eventId)
+
 
   return {
     props: {
@@ -60,7 +59,7 @@ export const getStaticProps = async (ctx) => {
         image: event.image,
         description: event.description
       }
-    },
+    }, revalidate: 180
   }
 }
 

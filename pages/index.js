@@ -1,31 +1,10 @@
 import { useEffect, useState } from 'react';
-import { getFeaturedEvents } from '../dummy-data';
 import EventList from '../components/events/event-list';
+import {getAllEvents} from '../helpers/api-util'
+import {getFeaturedEvents} from '../helpers/api-util'
 
 function HomePage(props) {
- 
-  // const featuredEvents = getFeaturedEvents();
-  const [ featuredEvents, setFeaturedEvents] = useState([])
- 
-  useEffect(() => {
-
-    let transformedData = []
-    for (const x in props ) {
-      transformedData.push({
-        id: x,
-        description: props[x].description,
-        image: props[x].image,
-        isFeatured: props[x].isFeatured,
-        location: props[x].location,
-        title: props[x].title,
-      })
-    }
-    setFeaturedEvents(transformedData)
-    console.log("transformedData", transformedData)
-  }, [])
-
-
-
+ const {featuredEvents} = props;
   return (
     <div>
       <EventList items={featuredEvents} />
@@ -33,13 +12,16 @@ function HomePage(props) {
   );
 }
 
-export const getStaticProps = async (ctx) => {
+export const getStaticProps = async () => {
 
-  const req = await fetch("https://next-js-example-8e3b6-default-rtdb.firebaseio.com/events.json")
-  const res = await req.json()
+  const allEvents = await getAllEvents()
+  const featuredEvents = getFeaturedEvents(allEvents)
+
 
   return {
-    props: res
+    props: {
+      featuredEvents: featuredEvents
+    }, revalidate: 1800
   }
 }
 export default HomePage;
