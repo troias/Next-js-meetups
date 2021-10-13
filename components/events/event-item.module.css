@@ -5,8 +5,10 @@
   background-color: white;
   margin: 1rem;
   display: flex;
-  flex-direction: column;
+  flex-direction: row-reverse;
   gap: 1rem;
+  background-color: red;
+  
 }
 
 .item img {
@@ -19,6 +21,7 @@
   width: 100%;
   padding: 0 1rem;
   text-align: center;
+  margin:0.5rem
 }
 
 .content h2 {
@@ -79,6 +82,9 @@
 @media (min-width: 768px) {
   .item {
     flex-direction: row;
+  background-color: white;
+
+ 
   }
 
   .item img {
