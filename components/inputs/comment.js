@@ -5,7 +5,8 @@ import NewComment from './new-comment';
 import classes from './comment.module.css';
 
 function Comments(props) {
-  const { eventId } = props;
+  const { eventId } = props
+  console.log("CommentsID", eventId)
   const [comments, setComments] = useState([]);
   const [showComments, setShowComments] = useState(false);
 
@@ -14,6 +15,7 @@ function Comments(props) {
       const getComments = async () => {
         const req = await fetch(`/api/comments/${eventId}`)
         const res = await req.json()
+        console.log("getCommentsRes", res)
         setComments(res)
       }
       getComments()

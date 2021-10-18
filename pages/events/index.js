@@ -9,7 +9,7 @@ function AllEventsPage(props) {
   const router = useRouter()
   const { events } = props
 
-  console.log("events", events)
+
 
   function findEventsHandler(year, month) {
     const fullPath = `/events/${year}/${month}`;
@@ -33,7 +33,7 @@ function AllEventsPage(props) {
 export const getStaticProps = async () => {
 
   const events = await getAllEvents();
-  console.log("events", events)
+ 
 
   return {
     props: {

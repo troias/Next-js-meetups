@@ -12,6 +12,7 @@ export const getAllEvents = async () => {
             ...res[x],
         })
     }
+  
     return transformedData
 }
 

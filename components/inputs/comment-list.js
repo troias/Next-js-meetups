@@ -5,8 +5,9 @@ function CommentList(props) {
   console.log("CommentListProps", comments)
   return (
     <>
+
       {comments && comments.map(comment =>
-        <ul className={classes.comments} key={comment.id}>
+        <ul className={classes.comments} key={comment._id}>
 
           <li >
             <p>{comment.text}</p>
