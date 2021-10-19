@@ -1,14 +1,20 @@
-import { MongoClient } from 'mongodb'
-
+import { connectDatabase, insertDocument, getAllDocuments } from '../../../helpers/db-utils'
 const handler = async (req, res) => {
-    const eventId = req.query.commentId
-    console.log("commentApiId", eventId)
-    const client = await MongoClient.connect(`${process.env.NEXT_PUBLIC_MONGO_DB_HOST}${process.env.NEXT_PUBLIC_MONGO_DB_USERNAME}:${process.env.NEXT_PUBLIC_MONGO_DB_PASS}${process.env.NEXT_PUBLIC_MONGO_DB_HOST_CLUSTER}`)
-    
-    if (req.method === "POST") {
-        const parsedCommentData = JSON.parse(req.body)
 
-        //server-side validation 
+    const eventId = req.query.commentId
+
+    let client
+    try {
+        client = await connectDatabase()
+    } catch (error) {
+        res.status(500).json({ message: "connecting to db failed" })
+        return
+    }
+
+
+    if (req.method === "POST") {
+
+        const parsedCommentData = JSON.parse(req.body)
         const { email, name, text } = parsedCommentData
 
         if (!email.includes('@') ||
@@ -22,24 +28,29 @@ const handler = async (req, res) => {
 
         const newComment = { email, name, text, eventId }
 
-        //Connect & send to mongodb server
+     
+
+        try {
+            const result = await insertDocument(client, "comments", newComment)
+            newComment.id = result.insertedId
+            console.log("result", result)
+            client.close()
+            res.status(201).json({ message: "success", newComment: newComment })
+        } catch (error) {
+            res.status(500).json({ message: "error inserting data", error: error })
+            return
+        }
 
 
-        const db = client.db()
-        const commentsCollection = db.collection('comments')
-        const result = await commentsCollection.insertOne(newComment)
-       
-        newComment.id = result.insertedId
-        client.close()
-        res.status(201).json({ message: "success", newComment: newComment })
+
+
     }
 
     if (req.method === "GET") {
 
-        const db = client.db()
-        const comments = await db.collection('comments').find().sort({ _id: -1 }).toArray()
-      
-        res.status(200).json({ comments: comments })
+        const documents = await getAllDocuments(client, "comments", { _id: -1 }, { eventId: eventId })
+        console.log("commentsApi", documents)
+        res.status(200).json({ comments: documents })
 
 
     }

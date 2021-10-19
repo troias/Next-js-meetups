@@ -1,27 +1,30 @@
-import { MongoClient } from 'mongodb'
+import { MongoClient } from "mongodb";
+import {
+  connectDatabase,
+  insertDocument,
+  getAllDocuments,
+} from "../../../helpers/db-utils";
 
 const handler = async (req, res) => {
+  if (req.method === "POST") {
+    const parsedNewsLetterData = JSON.parse(req.body);
+    const email = parsedNewsLetterData;
 
-    if (req.method === "POST") {
-
-        const parsedNewsLetterData = JSON.parse(req.body)
-        const email = parsedNewsLetterData
-
-        const client = await MongoClient.connect(`${process.env.NEXT_PUBLIC_MONGO_DB_HOST}${process.env.NEXT_PUBLIC_MONGO_DB_USERNAME}:${process.env.NEXT_PUBLIC_MONGO_DB_PASS}${process.env.NEXT_PUBLIC_MONGO_DB_HOST_CLUSTER}`)
-        const db = client.db()
-        const emailSCollection = db.collection("emails")
-        const result = await emailSCollection.insertOne(email)
-        console.log(result)
-        client.close()
-
-        //validation 
-
-        console.log("email", email)
-        res.status(201).json({
-            email: email
-        })
+    let client;
+    try {
+      client = await connectDatabase();
+      const result = await insertDocument(client, "email", email);
+      client.close();
+      console.log("email", result);
+      res.status(201).json({
+        email: result,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "failed to submit email" });
     }
-  
-}
 
-export default handler
+    //validation
+  }
+};
+
+export default handler;
