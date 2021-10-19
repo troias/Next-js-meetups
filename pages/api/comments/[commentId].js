@@ -23,22 +23,22 @@ const handler = async (req, res) => {
             !text ||
             text.trim() === '') {
             res.status(422).json({ message: "invalid input" })
+            client.close()
             return
         }
 
         const newComment = { email, name, text, eventId }
 
-     
+
 
         try {
             const result = await insertDocument(client, "comments", newComment)
             newComment.id = result.insertedId
             console.log("result", result)
-            client.close()
+
             res.status(201).json({ message: "success", newComment: newComment })
         } catch (error) {
             res.status(500).json({ message: "error inserting data", error: error })
-            return
         }
 
 
@@ -47,14 +47,18 @@ const handler = async (req, res) => {
     }
 
     if (req.method === "GET") {
+        try {
+            const documents = await getAllDocuments(client, "comments", { _id: -1 }, { eventId: eventId })
+            console.log("commentsApi", documents)
+            res.status(200).json({ comments: documents })
+        } catch (error) {
+            res.status(500).json({ message: "failed to get comments" })
+        }
 
-        const documents = await getAllDocuments(client, "comments", { _id: -1 }, { eventId: eventId })
-        console.log("commentsApi", documents)
-        res.status(200).json({ comments: documents })
 
 
     }
-
+    client.close()
 }
 
 export default handler
